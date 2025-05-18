@@ -13,7 +13,7 @@ interface DecodedToken {
 const ONE_MINUTE_IN_MS = 60000;
 
 interface PocketContextType {
-    oAuthLogin: () => Promise<void>;
+    adminLogin: (email: string, password: string) => Promise<void>;
     logout: () => void;
     user: UsersResponse | null;
     token: string | null;
@@ -44,12 +44,12 @@ export const PocketProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     // Handle OAuth login with error handling
-    const oAuthLogin = useCallback(async () => {
+    const adminLogin = useCallback(async (email: string, password: string) => {
         try {
-            await pb.collection(Collections.Users).authWithOAuth2({ provider: "google" });
+            await pb.collection(Collections.Superusers).authWithPassword(email, password);
             setAuthToken()
         } catch (error) {
-            console.error("OAuth login failed:", error);
+            console.error("Admin login failed:", error);
         }
     }, []);
 
@@ -92,7 +92,7 @@ export const PocketProvider = ({ children }: { children: ReactNode }) => {
     useInterval(refreshSession, token ? 2 * ONE_MINUTE_IN_MS : null);
 
     return (
-        <PocketContext.Provider value={{ oAuthLogin, logout, user, token }}>
+        <PocketContext.Provider value={{ adminLogin, logout, user, token }}>
             {children}
         </PocketContext.Provider>
     );
