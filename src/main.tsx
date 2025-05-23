@@ -1,15 +1,31 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './tailwind.css'
-import App from './App.tsx'
+import App from './pages/App.tsx'
 import { NotificationProvider } from './contexts/NotificationContext.tsx'
 import { PocketProvider } from './contexts/PocketContext.tsx'
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router";
+import Signin from './pages/Signin.tsx'
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <App />,
+  },
+  {
+    path: "/sign-in",
+    element: <Signin />,
+  },
+]);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <NotificationProvider>
       <PocketProvider>
-        <App />
+        <RouterProvider router={router} />
       </PocketProvider>
     </NotificationProvider>
   </StrictMode>,
