@@ -1,13 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import rollupNodePolyFill from 'rollup-plugin-node-polyfills';
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    nodePolyfills()
   ],
   envDir: "./env",
   server: {
@@ -15,15 +16,10 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      global: 'globalthis' // 👈 this line is critical
+      global: 'globalthis' 
     }
   },
   define: {
-    global: 'globalThis'  // 👈 define it so libraries referencing `global` don't break
+    global: 'globalThis'  
   },
-  build: {
-    rollupOptions: {
-      plugins: [rollupNodePolyFill()]
-    }
-  }
 })

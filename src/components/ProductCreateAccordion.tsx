@@ -5,6 +5,7 @@ import Creatable from "react-select/creatable";
 import Accordion from "./Accordion";
 import { generateSlug } from '../helpers';
 import RichTextEditor from './RichTextEditor';
+import ImageEditor from './ImageEditor';
 
 interface Option {
     value: string;
@@ -112,6 +113,7 @@ function ProductCreateAccordion() {
                             onChange={c => setInputData({ ...inputData, description: c })}
                         />
                     </fieldset>
+                    <ImageEditor />
                 </div>
             </div>
         </Accordion>
