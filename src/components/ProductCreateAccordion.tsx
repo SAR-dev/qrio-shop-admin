@@ -4,6 +4,7 @@ import { useMemo, useState } from "react"
 import Creatable from "react-select/creatable";
 import Accordion from "./Accordion";
 import { generateSlug } from '../helpers';
+import RichTextEditor from './RichTextEditor';
 
 interface Option {
     value: string;
@@ -23,12 +24,14 @@ function ProductCreateAccordion() {
 
     const [inputData, setInputData] = useState({
         title: "",
-        slug: ""
+        slug: "",
+        summary: "",
+        description: ""
     })
 
     return (
         <Accordion title="Create Products" defaultIsOpen>
-            <div className="grid grid-cols-2 gap-5">
+            <div className="grid grid-cols-2 divide-x divide-base-300">
                 <div className="flex flex-col gap-5 p-5">
                     <fieldset className="fieldset">
                         <legend className="fieldset-legend">Title</legend>
@@ -92,9 +95,23 @@ function ProductCreateAccordion() {
                     <div className="col-span-2">
                         <fieldset className="fieldset">
                             <legend className="fieldset-legend">Product Summary</legend>
-                            <textarea className="textarea h-24 w-full" placeholder=""></textarea>
+                            <textarea
+                                className="textarea h-24 w-full"
+                                placeholder=""
+                                value={inputData.summary}
+                                onChange={e => setInputData({ ...inputData, summary: e.target.value })}
+                            />
                         </fieldset>
                     </div>
+                </div>
+                <div className="flex flex-col gap-5 p-5">
+                    <fieldset className="fieldset">
+                        <legend className="fieldset-legend">Product Description</legend>
+                        <RichTextEditor
+                            initialContent={inputData.description}
+                            onChange={c => setInputData({ ...inputData, description: c })}
+                        />
+                    </fieldset>
                 </div>
             </div>
         </Accordion>

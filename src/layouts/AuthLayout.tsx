@@ -20,9 +20,9 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
 
     return (
         <section className='min-h-screen flex flex-col bg-base-200'>
-            <div className="navbar bg-base-100 shadow-sm">
+            <div className="navbar bg-base-100 shadow-sm px-5">
                 <div className="navbar-start">
-                    <Link className="btn btn-ghost text-xl" to={"/"}>QRIO</Link>
+                    <Link className="text-xl" to={"/"}>QRIO</Link>
                 </div>
                 <div className="navbar-center hidden lg:flex">
                     <ul className="menu menu-horizontal px-1">
