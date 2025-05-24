@@ -113,6 +113,8 @@ function ProductCreateAccordion() {
                             onChange={c => setInputData({ ...inputData, description: c })}
                         />
                     </fieldset>
+                </div>
+                <div className="col-span-2">
                     <ImageEditor />
                 </div>
             </div>

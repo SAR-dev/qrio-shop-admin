@@ -11,27 +11,30 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@filerobot/image-editor": "^3.114.5",
     "@headlessui/react": "^2.2.4",
     "@pqina/pintura": "^8.92.14",
-    "@pqina/react-pintura": "^9.0.4",
     "@tailwindcss/vite": "^4.1.7",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
     "axios": "^1.9.0",
     "classnames": "^2.5.1",
+    "compressorjs": "^1.2.1",
     "draft-js": "^0.11.7",
     "immer": "^10.1.1",
     "jwt-decode": "^4.0.0",
     "pocketbase": "^0.26.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-filerobot-image-editor": "^4.9.1",
     "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
+    "react-konva": "^18.2.10",
     "react-router": "^7.6.0",
     "react-select": "^5.10.1",
+    "styled-components": "^6.1.18",
     "tailwindcss": "^4.1.7",
     "usehooks-ts": "^3.1.1",
-    "vite-plugin-node-polyfills": "^0.23.0",
     "zustand": "^5.0.4"
   },
   "devDependencies": {
@@ -48,6 +51,7 @@
     "globals": "^16.0.0",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.30.1",
-    "vite": "^6.0.3"
+    "vite": "^6.0.3",
+    "vite-plugin-node-polyfills": "^0.23.0"
   }
 }
