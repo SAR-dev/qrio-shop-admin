@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
+    "@pqina/pintura": "^8.92.14",
     "@tailwindcss/vite": "^4.1.7",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
