@@ -2,5 +2,5 @@
 @plugin "daisyui";
 
 .FIE_editor-content, .FIE_tabs {
-    height: 70vh !important
+    height: 70vh !important;
 }

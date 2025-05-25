@@ -1,21 +1,15 @@
-import React, { useState } from "react";
 import Compressor from "compressorjs";
 import FilerobotImageEditor, { TABS, TOOLS } from 'react-filerobot-image-editor';
 
-export default function ImageEditor() {
-  const [imageToEdit, setImageToEdit] = useState<string | null>(null);
-  const [showEditor, setShowEditor] = useState(false);
-  const [compressedImageUrl, setCompressedImageUrl] = useState<string | null>(null);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setImageToEdit(url);
-      setShowEditor(true);
-    }
-  };
-
+export default function ImageEditor({
+  imageToEdit,
+  handleEditorModalClose,
+  handleImageSave
+}: {
+  imageToEdit: File
+  handleEditorModalClose: () => void
+  handleImageSave: (props: File) => void
+}) {
   const handleSave = (editedImageObject: any) => {
     const base64 = editedImageObject.imageBase64;
 
@@ -33,43 +27,33 @@ export default function ImageEditor() {
     new Compressor(blob, {
       quality: 0.8,
       success(compressedBlob) {
-        const compressedUrl = URL.createObjectURL(compressedBlob);
-        setCompressedImageUrl(compressedUrl);
-        setShowEditor(false);
+        handleImageSave(new File([compressedBlob], Date.now().toString(), {
+          type: compressedBlob.type,
+          lastModified: Date.now(),
+        }))
       },
       error(err) {
         console.error("Compression error:", err);
-        setShowEditor(false);
+        // setShowEditor(false);
       },
     });
   };
 
   return (
     <div>
-      <input type="file" accept="image/*" onChange={handleFileChange} />
-
-      {showEditor && imageToEdit && (
-        <FilerobotImageEditor
-          source={imageToEdit}
-          onSave={handleSave}
-          onClose={() => setShowEditor(false)}
-          annotationsCommon={{ fill: "#ff0000" }}
-          Text={{ text: "Qrio" }}
-          tabsIds={[TABS.ADJUST, TABS.ANNOTATE, TABS.WATERMARK, TABS.RESIZE, TABS.FILTERS, TABS.FINETUNE]}
-          defaultTabId={TABS.ADJUST}
-          defaultToolId={TOOLS.TEXT}
-          savingPixelRatio={0}
-          previewPixelRatio={3}
-          useZoomPresetsMenu
-        />
-      )}
-
-      {compressedImageUrl && (
-        <div style={{ marginTop: "1rem" }}>
-          <h3>Compressed Result</h3>
-          <img src={compressedImageUrl} alt="Compressed result" />
-        </div>
-      )}
+      <FilerobotImageEditor
+        source={URL.createObjectURL(imageToEdit)}
+        onSave={(editedImageObject) => handleSave(editedImageObject)}
+        onClose={handleEditorModalClose}
+        annotationsCommon={{ fill: "#ff0000" }}
+        Text={{ text: "Qrio" }}
+        tabsIds={[TABS.ADJUST, TABS.ANNOTATE, TABS.WATERMARK, TABS.RESIZE, TABS.FILTERS, TABS.FINETUNE]}
+        defaultTabId={TABS.ADJUST}
+        defaultToolId={TOOLS.TEXT}
+        savingPixelRatio={0}
+        previewPixelRatio={3}
+        useZoomPresetsMenu
+      />
     </div>
   );
 }

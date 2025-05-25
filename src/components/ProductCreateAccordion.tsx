@@ -6,6 +6,7 @@ import Accordion from "./Accordion";
 import { generateSlug } from '../helpers';
 import RichTextEditor from './RichTextEditor';
 import ImageEditor from './ImageEditor';
+import ImageGallery from './ImageGallery';
 
 interface Option {
     value: string;
@@ -113,9 +114,13 @@ function ProductCreateAccordion() {
                             onChange={c => setInputData({ ...inputData, description: c })}
                         />
                     </fieldset>
+                    <fieldset className="fieldset">
+                        <legend className="fieldset-legend">Product Images</legend>
+                        <ImageGallery />
+                    </fieldset>
                 </div>
                 <div className="col-span-2">
-                    <ImageEditor />
+                    {/* <ImageEditor /> */}
                 </div>
             </div>
         </Accordion>
