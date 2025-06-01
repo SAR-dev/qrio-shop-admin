@@ -20,8 +20,8 @@ function Signin() {
       .then(() => {
         notification.add({
           status: NotificationType.SUCCESS,
-          title: "Created!",
-          message: "Product created. Please check it.."
+          title: "Signed In!",
+          message: "You have signed in successfully."
         })
       })
       .catch(() => {

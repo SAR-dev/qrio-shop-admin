@@ -5,12 +5,11 @@ import Creatable from "react-select/creatable";
 import Accordion from "./Accordion";
 import { api, generateSlug } from '../helpers';
 import RichTextEditor from './RichTextEditor';
-import ImageGallery from './ImageGallery';
 import { FaCheckCircle, FaMinus, FaPlus } from 'react-icons/fa';
 import { MdError } from 'react-icons/md';
 import { constants } from '../constants';
 import { pb } from '../contexts/PocketContext';
-import { Collections } from '../types/pocketbase';
+import { Collections, ImagesResponse } from '../types/pocketbase';
 import { useDebounceCallback } from 'usehooks-ts';
 import classNames from "classnames";
 import { EditorState } from 'draft-js';
@@ -18,6 +17,8 @@ import { stateToHTML } from 'draft-js-export-html';
 import Compressor from 'compressorjs';
 import { useNotification } from '../contexts/NotificationContext';
 import { NotificationType } from '../types/notification';
+import GallerySelect from './GallerySelect';
+import { LuImagePlus } from 'react-icons/lu';
 
 interface Option {
     value: string;
@@ -29,15 +30,15 @@ function ProductCreateAccordion() {
     const notification = useNotification()
     const inputRef = createRef<HTMLInputElement>()
     const [isSlugUnq, setIsSlugUnq] = useState(true)
+    const [isGalleryOpen, setIsGalleryOpen] = useState(false)
 
-    const [uploadingImages, setUploadingImages] = useState(false)
     const [creatingProducts, setCreatingProducts] = useState(false)
 
     const [selectedCategory, setSelectedCategory] = useState<Option | null>(null);
     const [selectedSeries, setSelectedSeries] = useState<Option | null>(null);
     const [selectedTags, setSelectedTags] = useState<MultiValue<Option> | null>(null);
-    const [images, setImages] = useState<File[]>([]);
     const [variants, setVariants] = useState<string[]>([])
+    const [images, setImages] = useState<ImagesResponse[]>([])
     const [descriptionState, setDescriptionState] = useState<EditorState>(EditorState.createEmpty())
 
     const categoryList: Array<Option> = useMemo(() => summary.categoryList.map(c => ({ value: c.id, label: c.title })), [summary])
@@ -87,54 +88,7 @@ function ProductCreateAccordion() {
         setVariants([...temp])
     }
 
-    const compressImage = (file: File): Promise<FormData> => {
-        return new Promise((resolve, reject) => {
-            new Compressor(file, {
-                quality: 0.8,
-                strict: true,
-                checkOrientation: true,
-                convertSize: 2000000,
-                success(result) {
-                    const formData = new FormData();
-                    formData.append("title", file.name);
-                    formData.append("source", result, file.name); // Adjust field key if needed
-                    resolve(formData);
-                },
-                error(err) {
-                    reject(err);
-                },
-            });
-        });
-    };
-
-    const uploadImages = async (): Promise<string[]> => {
-        if (images.length === 0) return [];
-
-        setUploadingImages(true);
-        try {
-            const compressedForms = await Promise.all(images.map(compressImage));
-            const batch = pb.createBatch();
-
-            compressedForms.forEach(formData => {
-                batch.collection(Collections.Images).create(formData);
-            });
-
-            const responses = await batch.send();
-            return responses.map(r => r.body.id);
-        } catch (error) {
-            console.error("Image upload failed:", error);
-            notification.add({
-                status: NotificationType.ERROR,
-                title: "Error!",
-                message: "Image upload failed. Please try again later."
-            })
-            throw error;
-        } finally {
-            setUploadingImages(false)
-        }
-    };
-
-    const uploadProduct = async (imageIds: string[]) => {
+    const handleSubmit = () => {
         setCreatingProducts(true);
 
         const {
@@ -164,7 +118,7 @@ function ProductCreateAccordion() {
             tags: selectedTags?.map(tag => tag.value) || [],
             categories: selectedCategory?.value,
             series: selectedSeries?.value,
-            images: imageIds
+            images: images.map(c => c.id)
         };
 
         api.post("/api/product", productData)
@@ -184,19 +138,6 @@ function ProductCreateAccordion() {
                 })
             })
             .finally(() => setCreatingProducts(false))
-    };
-
-    const handleSubmit = async () => {
-        const imageIds = await uploadImages();
-        if (imageIds.length == 0) {
-            notification.add({
-                status: NotificationType.ERROR,
-                title: "Error!",
-                message: "Images required. Please try again later."
-            })
-            return;
-        }
-        await uploadProduct(imageIds);
     };
 
     return (
@@ -368,24 +309,26 @@ function ProductCreateAccordion() {
                     </fieldset>
                     <fieldset className="fieldset">
                         <legend className="fieldset-legend">Product Images</legend>
-                        <ImageGallery images={images} setImages={setImages} />
+                        <div className="grid grid-cols-5 gap-5">
+                            <button className="h-32 w-full border border-base-content/30 border-dashed rounded flex justify-center items-center bg-base-200 cursor-pointer hover:bg-base-300" onClick={() => setIsGalleryOpen(true)}>
+                                <LuImagePlus className='size-16' />
+                            </button>
+                        </div>
                     </fieldset>
                 </div>
             </div>
             <div className="p-5 flex justify-center bg-info/30">
                 <button className="btn btn-info w-64" onClick={handleSubmit}>Submit</button>
             </div>
-            {(uploadingImages || creatingProducts) && (
+            {creatingProducts && (
                 <div className='fixed top-0 left-0 bg-base-content/80 text-base-100 w-full h-screen flex justify-center items-center'>
                     <div className="flex flex-col items-center gap-5">
                         <span className="loading loading-spinner loading-lg"></span>
-                        <div>
-                            {uploadingImages && "Uploading Images"}
-                            {creatingProducts && "Creating Products"}
-                        </div>
+                        <div>Creating Products</div>
                     </div>
                 </div>
             )}
+            <GallerySelect selectedImages={images} setSelectedImages={setImages} isGalleryOpen={isGalleryOpen} setIsGalleryOpen={setIsGalleryOpen} />
         </Accordion>
     )
 }

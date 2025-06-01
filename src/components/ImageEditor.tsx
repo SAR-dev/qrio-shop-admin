@@ -5,7 +5,7 @@ import { useRef } from 'react';
 export default function ImageEditor({
   imageToEdit,
   handleEditorModalClose,
-  handleImageSave,
+  handleImageSave
 }: {
   imageToEdit: File;
   handleEditorModalClose: () => void;
