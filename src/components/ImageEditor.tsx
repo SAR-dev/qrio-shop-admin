@@ -1,59 +1,63 @@
-import Compressor from "compressorjs";
-import FilerobotImageEditor, { TABS, TOOLS } from 'react-filerobot-image-editor';
+import { Cropper, CropperRef } from 'react-advanced-cropper';
+import 'react-advanced-cropper/dist/style.css';
+import { useRef } from 'react';
 
 export default function ImageEditor({
   imageToEdit,
   handleEditorModalClose,
-  handleImageSave
+  handleImageSave,
 }: {
-  imageToEdit: File
-  handleEditorModalClose: () => void
-  handleImageSave: (props: File) => void
+  imageToEdit: File;
+  handleEditorModalClose: () => void;
+  handleImageSave: (file: File) => void;
 }) {
-  const handleSave = (editedImageObject: any) => {
-    const base64 = editedImageObject.imageBase64;
+  const cropperRef = useRef<CropperRef>(null);
 
-    // Convert base64 to Blob
-    const byteString = atob(base64.split(",")[1]);
-    const mimeString = base64.split(",")[0].split(":")[1].split(";")[0];
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    }
-    const blob = new Blob([ab], { type: mimeString });
+  const handleSave = () => {
+    const cropper = cropperRef.current;
+    if (!cropper) return;
 
-    // Compress it
-    new Compressor(blob, {
-      quality: 0.8,
-      success(compressedBlob) {
-        handleImageSave(new File([compressedBlob], Date.now().toString(), {
-          type: compressedBlob.type,
-          lastModified: Date.now(),
-        }))
+    const canvas = cropper.getCanvas();
+    if (!canvas) return;
+
+    canvas.toBlob(
+      (blob) => {
+        if (blob) {
+          const file = new File([blob], File.name, {
+            type: blob.type,
+            lastModified: Date.now(),
+          });
+          handleImageSave(file);
+        }
       },
-      error(err) {
-        console.error("Compression error:", err);
-        // setShowEditor(false);
-      },
-    });
+      'image/png',
+      1.0
+    );
   };
 
   return (
-    <div>
-      <FilerobotImageEditor
-        source={URL.createObjectURL(imageToEdit)}
-        onSave={(editedImageObject) => handleSave(editedImageObject)}
-        onClose={handleEditorModalClose}
-        annotationsCommon={{ fill: "#ff0000" }}
-        Text={{ text: "Qrio" }}
-        tabsIds={[TABS.ADJUST, TABS.ANNOTATE, TABS.WATERMARK, TABS.RESIZE, TABS.FILTERS, TABS.FINETUNE]}
-        defaultTabId={TABS.ADJUST}
-        defaultToolId={TOOLS.TEXT}
-        savingPixelRatio={0}
-        previewPixelRatio={3}
-        useZoomPresetsMenu
+    <div className='h-fill flex flex-col'>
+      <Cropper
+        ref={cropperRef}
+        src={URL.createObjectURL(imageToEdit)}
+        stencilProps={{
+          movable: true,
+          resizable: true
+        }}
+        imageRestriction={undefined}
+        className="advanced-cropper flex-1"
+        style={{
+          height: 400,
+          width: '100%',
+          border: '1px solid #ccc'
+        }}
       />
+      <div className='flex justify-between mt-5'>
+        <button className='btn' onClick={handleEditorModalClose}>
+          Cancel
+        </button>
+        <button className='btn btn-info' onClick={handleSave}>Save</button>
+      </div>
     </div>
   );
 }

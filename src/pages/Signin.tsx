@@ -1,9 +1,11 @@
 import { Navigate } from "react-router";
 import { usePocket } from "../contexts/PocketContext";
 import { useState } from "react";
-import toast from "react-hot-toast";
+import { useNotification } from "../contexts/NotificationContext";
+import { NotificationType } from "../types/notification";
 
 function Signin() {
+  const notification = useNotification()
   const { user, adminLogin } = usePocket()
   const [formData, setFormData] = useState({
     email: "",
@@ -16,9 +18,19 @@ function Signin() {
     setIsLoading(true);
     adminLogin(formData.email, formData.password)
       .then(() => {
-        toast.success("Sign In successful");
+        notification.add({
+          status: NotificationType.SUCCESS,
+          title: "Created!",
+          message: "Product created. Please check it.."
+        })
       })
-      .catch(() => toast.error("Sign In failed"))
+      .catch(() => {
+        notification.add({
+          status: NotificationType.ERROR,
+          title: "Error!",
+          message: "Signin failed. Please try again later."
+        })
+      })
       .finally(() => setIsLoading(false));
   };
 

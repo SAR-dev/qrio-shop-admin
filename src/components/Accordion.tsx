@@ -1,26 +1,19 @@
-import { ReactNode, useState } from 'react';
-import { FaMinus, FaPlus } from 'react-icons/fa';
+import { ReactNode } from 'react';
 
 function Accordion({
     title,
-    defaultIsOpen,
     children
 }: {
     title: string
-    defaultIsOpen?: boolean
-    children: ReactNode
+    children: ReactNode[]
 }) {
-    const [show, setShow] = useState(!!defaultIsOpen)
 
     return (
         <div className="w-full flex flex-col">
-            <div className="flex justify-between items-center p-5 bg-accent/30">
+            <div className="flex justify-between items-center p-5 bg-base-content/10 border-b border-base-content/30">
                 <h3 className="text-xl font-semibold">{title}</h3>
-                <button className="btn btn-square btn-accent btn-sm" onClick={() => setShow(!show)}>
-                    {show ? <FaMinus className="size-4" /> : <FaPlus className="size-4" />}
-                </button>
             </div>
-            <div className={show ? "" : "hidden"}>
+            <div>
                 {children}
             </div>
         </div>

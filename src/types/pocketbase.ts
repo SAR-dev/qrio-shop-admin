@@ -23,6 +23,7 @@ export enum Collections {
 	Invoices = "invoices",
 	Payments = "payments",
 	ProductSections = "productSections",
+	ProductVariants = "productVariants",
 	Products = "products",
 	PromotedProducts = "promotedProducts",
 	Queries = "queries",
@@ -124,6 +125,7 @@ export type CartsRecord = {
 	amount: number
 	created?: IsoDateString
 	id: string
+	productVariants?: RecordIdString
 	products: RecordIdString
 	updated?: IsoDateString
 	users: RecordIdString
@@ -192,6 +194,7 @@ export type InvoiceProductsRecord = {
 	discount?: number
 	id: string
 	invoices: RecordIdString
+	productVariants?: RecordIdString
 	products: RecordIdString
 	sellingPrice: number
 	updated?: IsoDateString
@@ -246,6 +249,13 @@ export type ProductSectionsRecord = {
 	updated?: IsoDateString
 }
 
+export type ProductVariantsRecord = {
+	created?: IsoDateString
+	id: string
+	title: string
+	updated?: IsoDateString
+}
+
 export enum ProductsDisplayTypeOptions {
 	"PROMOTION" = "PROMOTION",
 	"DISCOUNT" = "DISCOUNT",
@@ -264,6 +274,7 @@ export type ProductsRecord<Ttags = unknown> = {
 	images?: RecordIdString[]
 	inStock?: boolean
 	priority: number
+	productVariants?: RecordIdString[]
 	sellingPrice: number
 	series?: RecordIdString
 	sizeInCubicCm?: number
@@ -311,7 +322,7 @@ export type ShippingChargesRecord = {
 	id: string
 	shippingArea: string
 	shippingCompany: string
-	shippingCost?: number
+	shippingCost: number
 	updated?: IsoDateString
 }
 
@@ -371,6 +382,7 @@ export type InvoiceProductsResponse<Texpand = unknown> = Required<InvoiceProduct
 export type InvoicesResponse<Texpand = unknown> = Required<InvoicesRecord> & BaseSystemFields<Texpand>
 export type PaymentsResponse<Texpand = unknown> = Required<PaymentsRecord> & BaseSystemFields<Texpand>
 export type ProductSectionsResponse<Texpand = unknown> = Required<ProductSectionsRecord> & BaseSystemFields<Texpand>
+export type ProductVariantsResponse<Texpand = unknown> = Required<ProductVariantsRecord> & BaseSystemFields<Texpand>
 export type ProductsResponse<Ttags = unknown, Texpand = unknown> = Required<ProductsRecord<Ttags>> & BaseSystemFields<Texpand>
 export type PromotedProductsResponse<Texpand = unknown> = Required<PromotedProductsRecord> & BaseSystemFields<Texpand>
 export type QueriesResponse<Texpand = unknown> = Required<QueriesRecord> & BaseSystemFields<Texpand>
@@ -400,6 +412,7 @@ export type CollectionRecords = {
 	invoices: InvoicesRecord
 	payments: PaymentsRecord
 	productSections: ProductSectionsRecord
+	productVariants: ProductVariantsRecord
 	products: ProductsRecord
 	promotedProducts: PromotedProductsRecord
 	queries: QueriesRecord
@@ -428,6 +441,7 @@ export type CollectionResponses = {
 	invoices: InvoicesResponse
 	payments: PaymentsResponse
 	productSections: ProductSectionsResponse
+	productVariants: ProductVariantsResponse
 	products: ProductsResponse
 	promotedProducts: PromotedProductsResponse
 	queries: QueriesResponse
@@ -459,6 +473,7 @@ export type TypedPocketBase = PocketBase & {
 	collection(idOrName: 'invoices'): RecordService<InvoicesResponse>
 	collection(idOrName: 'payments'): RecordService<PaymentsResponse>
 	collection(idOrName: 'productSections'): RecordService<ProductSectionsResponse>
+	collection(idOrName: 'productVariants'): RecordService<ProductVariantsResponse>
 	collection(idOrName: 'products'): RecordService<ProductsResponse>
 	collection(idOrName: 'promotedProducts'): RecordService<PromotedProductsResponse>
 	collection(idOrName: 'queries'): RecordService<QueriesResponse>

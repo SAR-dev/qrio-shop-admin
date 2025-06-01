@@ -1,29 +1,24 @@
 import React, { useState } from 'react';
-import { Editor, EditorState, RichUtils, convertToRaw, convertFromRaw, AtomicBlockUtils, ContentBlock } from 'draft-js';
+import { Editor, EditorState, RichUtils, AtomicBlockUtils, ContentBlock } from 'draft-js';
 import 'draft-js/dist/Draft.css';
 import { FaBold, FaItalic, FaLink, FaListOl, FaListUl, FaStrikethrough, FaUnderline } from 'react-icons/fa';
 import { MdHorizontalRule } from "react-icons/md";
 
 type RichTextEditorProps = {
-  initialContent?: string;
-  onChange?: (rawContent: string) => void;
+  initialContent: EditorState;
+  onChange: (rawContent: EditorState) => void;
 };
 
 const RichTextEditor: React.FC<RichTextEditorProps> = ({ initialContent, onChange }) => {
   const [editorState, setEditorState] = useState(() =>
     initialContent
-      ? EditorState.createWithContent(convertFromRaw(JSON.parse(initialContent)))
-      : EditorState.createEmpty()
   );
 
-   const focusEditor = () => editorRef.current?.focus();
+  //  const focusEditor = () => editorRef.current?.focus();
 
   const handleEditorChange = (state: EditorState) => {
     setEditorState(state);
-    if (onChange) {
-      const raw = JSON.stringify(convertToRaw(state.getCurrentContent()));
-      onChange(raw);
-    }
+    onChange(state);
   };
 
   const handleKeyCommand = (command: string, state: EditorState) => {
@@ -86,31 +81,31 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ initialContent, onChang
     <div className="border border-base-content/20 rounded">
       <div className="p-3 border-b border-base-content/20 flex gap-3">
         <button onClick={() => toggleInlineStyle('BOLD')} className="btn btn-sm btn-square">
-            <FaBold className='size-4' />
+          <FaBold className='size-4' />
         </button>
         <button onClick={() => toggleInlineStyle('ITALIC')} className="btn btn-sm btn-square">
-            <FaItalic className='size-4' />
+          <FaItalic className='size-4' />
         </button>
         <button onClick={() => toggleInlineStyle('UNDERLINE')} className="btn btn-sm btn-square">
-            <FaUnderline className='size-4' />
+          <FaUnderline className='size-4' />
         </button>
         <button onClick={() => toggleInlineStyle('STRIKETHROUGH')} className="btn btn-sm btn-square">
-            <FaStrikethrough className='size-4' />
+          <FaStrikethrough className='size-4' />
         </button>
         <button onClick={() => toggleBlockType('unordered-list-item')} className="btn btn-sm btn-square">
-            <FaListUl className='size-4' />
+          <FaListUl className='size-4' />
         </button>
         <button onClick={() => toggleBlockType('ordered-list-item')} className="btn btn-sm btn-square">
-            <FaListOl className='size-4' />
+          <FaListOl className='size-4' />
         </button>
         <button onClick={insertLink} className="btn btn-sm btn-square">
-            <FaLink className='size-4' />
+          <FaLink className='size-4' />
         </button>
         <button onClick={insertHorizontalRule} className="btn btn-sm btn-square">
-            <MdHorizontalRule className='size-4' />
+          <MdHorizontalRule className='size-4' />
         </button>
       </div>
-      <div className="p-3 min-h-64 cursor-text" onClick={() => editorRef.current?.focus()}>
+      <div className="p-3 min-h-64 cursor-text text-base" onClick={() => editorRef.current?.focus()}>
         <Editor
           editorState={editorState}
           onChange={handleEditorChange}
