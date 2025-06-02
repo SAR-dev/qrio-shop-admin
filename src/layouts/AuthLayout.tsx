@@ -3,16 +3,17 @@ import { usePocket } from '../contexts/PocketContext';
 import { api } from '../helpers';
 import { useDataStore } from '../stores/dataStore';
 import { SummaryResType } from '../types/response';
-import { Link, Navigate } from 'react-router';
+import { Link, Navigate, useNavigate } from 'react-router';
 import { IoMdExit } from "react-icons/io";
 import { useImageModalStore } from '../stores/imageModalStore';
-import { Lightbox } from "react-modal-image";
 import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react'
+import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 
 const AuthLayout = ({ children }: { children: ReactNode }) => {
     const { user, logout } = usePocket()
     const { setSummary } = useDataStore()
     const { imageSrc, closeImageModal } = useImageModalStore()
+    const navigate = useNavigate()
 
     useEffect(() => {
         if (!user) return;
@@ -27,13 +28,14 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
             <div className="navbar bg-base-100 shadow-sm px-5">
                 <div className="navbar-start">
                     <Link className="text-xl" to={"/"}>QRIO</Link>
-                </div>
-                <div className="navbar-center hidden lg:flex">
-                    <ul className="menu menu-horizontal px-1">
-                        <li><a>Item 1</a></li>
-                        <li><a>Item 1</a></li>
-                        <li><a>Item 1</a></li>
-                    </ul>
+                    <div className="join ml-5">
+                        <button className="btn join-item btn-square" onClick={() => navigate(-1)}>
+                            <FaArrowLeftLong className='size-5' />
+                        </button>
+                        <button className="btn join-item btn-square" onClick={() => navigate(1)}>
+                            <FaArrowRightLong className='size-5' />
+                        </button>
+                    </div>
                 </div>
                 <div className="navbar-end">
                     <button className="btn btn-warning" onClick={logout}>

@@ -1,3 +1,5 @@
+import { CategoriesResponse, ImagesResponse, ProductsResponse, ProductVariantsResponse, SeriesResponse } from "./pocketbase"
+
 export interface SummaryResType {
     seriesList: {
         id: string
@@ -11,3 +13,12 @@ export interface SummaryResType {
         tag: string
     }[]
 }
+
+export type TexpandProductListResType = ProductsResponse & {
+    expand: {
+        categories: CategoriesResponse;
+        series: SeriesResponse;
+        images: ImagesResponse[];
+        productVariants: ProductVariantsResponse[]
+    };
+};

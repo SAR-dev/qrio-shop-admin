@@ -10,6 +10,29 @@ export function generateSlug(text: string): string {
     .replace(/-+/g, '-') // collapse multiple hyphens
 }
 
+const formatter = new Intl.DateTimeFormat('en-CA', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+});
+
+export function formatTimestamp(timestamp: string | number | Date): string {
+  const date = new Date(timestamp);
+
+  const parts = formatter.formatToParts(date);
+  const map: { [key: string]: string } = {};
+  parts.forEach(p => {
+    if (p.type !== 'literal') {
+      map[p.type] = p.value;
+    }
+  });
+
+  return `${map.year}-${map.month}-${map.day} ${map.hour}:${map.minute}`;
+}
+
 export const getImageUrl = ({
   id,
   filename,

@@ -105,7 +105,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ initialContent, onChang
           <MdHorizontalRule className='size-4' />
         </button>
       </div>
-      <div className="p-3 min-h-64 cursor-text text-base" onClick={() => editorRef.current?.focus()}>
+      <div className="p-3 min-h-72 cursor-text text-base" onClick={() => editorRef.current?.focus()}>
         <Editor
           editorState={editorState}
           onChange={handleEditorChange}

@@ -12,5 +12,8 @@ export const constants = {
         { value: 2, label: "2 – Very Low" },
         { value: 1, label: "1 – Lowest Priority" },
     ],
-    PRODUCT_DISPLAYS : ["PROMOTION", "TRENDING", "SERIES", "CATEGORY"]
+    PRODUCT_DISPLAYS : ["PROMOTION", "TRENDING", "SERIES", "CATEGORY"],
+    SEARCH_PARAMS: {
+        PAGIE_NO: "pageNo"
+    }
 }
