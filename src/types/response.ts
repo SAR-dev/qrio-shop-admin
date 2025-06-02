@@ -19,6 +19,6 @@ export type TexpandProductListResType = ProductsResponse & {
         categories: CategoriesResponse;
         series: SeriesResponse;
         images: ImagesResponse[];
-        productVariants: ProductVariantsResponse[]
+        productVariants_via_products: ProductVariantsResponse[]
     };
 };

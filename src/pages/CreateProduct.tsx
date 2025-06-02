@@ -54,6 +54,7 @@ function CreateProduct() {
     const [variants, setVariants] = useState<string[]>([])
     const [images, setImages] = useState<ImagesResponse[]>([])
     const [descriptionState, setDescriptionState] = useState<EditorState>(EditorState.createEmpty())
+    const [editorKey, setEditorKey] = useState(1)
 
     const categoryList: Array<Option> = useMemo(() => summary.categoryList.map(c => ({ value: c.id, label: c.title })), [summary])
     const seriesList: Array<Option> = useMemo(() => summary.seriesList.map(c => ({ value: c.id, label: c.title })), [summary])
@@ -90,6 +91,7 @@ function CreateProduct() {
         setVariants([])
         setImages([])
         setDescriptionState(EditorState.createEmpty())
+        setEditorKey(editorKey + 1)
         setInputData({
             title: "",
             slug: "",
@@ -119,9 +121,10 @@ function CreateProduct() {
     }
 
     const handleVariantRemove = (index: number) => {
-        const temp = variants.slice(index, 1)
-        setVariants([...temp])
-    }
+        const temp = [...variants];
+        temp.splice(index, 1);
+        setVariants(temp);
+    };
 
     const handleSubmit = () => {
         setCreatingProducts(true);
@@ -358,6 +361,7 @@ function CreateProduct() {
                                     <RichTextEditor
                                         initialContent={descriptionState}
                                         onChange={setDescriptionState}
+                                        key={editorKey}
                                     />
                                 </fieldset>
                                 <fieldset className="fieldset">

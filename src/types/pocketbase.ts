@@ -252,6 +252,7 @@ export type ProductSectionsRecord = {
 export type ProductVariantsRecord = {
 	created?: IsoDateString
 	id: string
+	products: RecordIdString
 	title: string
 	updated?: IsoDateString
 }
@@ -274,7 +275,6 @@ export type ProductsRecord<Ttags = unknown> = {
 	images?: RecordIdString[]
 	inStock?: boolean
 	priority: number
-	productVariants?: RecordIdString[]
 	sellingPrice: number
 	series?: RecordIdString
 	sizeInCubicCm?: number

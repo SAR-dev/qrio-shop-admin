@@ -78,7 +78,7 @@ function EditProduct() {
     const payable = useMemo(() => Number(inputData.sellingPrice) - Number(inputData.discount), [inputData])
     const profit = useMemo(() => payable - Number(inputData.buyingPrice), [inputData])
     const profitPercent = useMemo(() => profit > 0 ? (((payable - Number(inputData.buyingPrice)) / Number(inputData.buyingPrice)) * 100).toFixed(2) : 0, [inputData])
-    const discountPercent = useMemo(() => Number(inputData.discount) > 0 && Number(inputData.sellingPrice) ? ((Number(inputData.discount) / Number(inputData.sellingPrice))*100).toFixed(2)  : 0, [inputData])
+    const discountPercent = useMemo(() => Number(inputData.discount) > 0 && Number(inputData.sellingPrice) ? ((Number(inputData.discount) / Number(inputData.sellingPrice)) * 100).toFixed(2) : 0, [inputData])
 
     const checkSlug = () => {
         if (inputData.slug.length == 0) return;
@@ -91,7 +91,7 @@ function EditProduct() {
         if (!id || id.length == 0 || dataLoaded) return;
         pb.collection(Collections.Products)
             .getOne(id, {
-                expand: "categories, series, images, productVariants"
+                expand: "categories, series, images, productVariants_via_products.products"
             })
             .then(res => {
                 const data = res as unknown as TexpandProductListResType;
@@ -100,8 +100,8 @@ function EditProduct() {
                 setSelectedCategory({ value: data.expand.categories.id, label: data.expand.categories.title })
                 setSelectedSeries({ value: data.expand.series.id, label: data.expand.series.title })
                 setSelectedTags(tags.map(c => ({ value: c, label: c })))
-                setVariants(data.expand.productVariants.map(c => c.title))
-                setImages(data.expand.images)
+                setVariants((data.expand.productVariants_via_products ?? []).map(c => c.title))
+                setImages(data.expand.images ?? [])
                 setDescriptionState(
                     EditorState.createWithContent(
                         ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap)
@@ -139,9 +139,11 @@ function EditProduct() {
     }
 
     const handleVariantRemove = (index: number) => {
-        const temp = variants.slice(index, 1)
-        setVariants([...temp])
-    }
+        const temp = [...variants];
+        temp.splice(index, 1);
+        setVariants(temp);
+    };
+
 
     const handleSubmit = () => {
         setCreatingProducts(true);
@@ -182,7 +184,7 @@ function EditProduct() {
                 notification.add({
                     status: NotificationType.SUCCESS,
                     title: "Created!",
-                    message: "Product has been created successfully!"
+                    message: "Product has been updated successfully!"
                 })
                 setDataLoaded(false)
             })
@@ -191,7 +193,7 @@ function EditProduct() {
                 notification.add({
                     status: NotificationType.ERROR,
                     title: "Error!",
-                    message: "Product creation failed. Please try again later."
+                    message: "Product update failed. Please try again later."
                 })
             })
             .finally(() => setCreatingProducts(false))
@@ -206,7 +208,7 @@ function EditProduct() {
         }
     }
 
-    if(!dataLoaded) return (
+    if (!dataLoaded) return (
         <AuthLayout>
             <div className="container mx-auto p-5"></div>
         </AuthLayout>
