@@ -3,9 +3,9 @@ import { useDataStore } from "../stores/dataStore"
 import { createRef, useEffect, useMemo, useState } from "react";
 import Creatable from "react-select/creatable";
 import Accordion from "./Accordion";
-import { api, generateSlug } from '../helpers';
+import { api, generateSlug, getImageUrl } from '../helpers';
 import RichTextEditor from './RichTextEditor';
-import { FaCheckCircle, FaMinus, FaPlus } from 'react-icons/fa';
+import { FaCheckCircle, FaMinus, FaPlus, FaTrash } from 'react-icons/fa';
 import { MdError } from 'react-icons/md';
 import { constants } from '../constants';
 import { pb } from '../contexts/PocketContext';
@@ -14,11 +14,11 @@ import { useDebounceCallback } from 'usehooks-ts';
 import classNames from "classnames";
 import { EditorState } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
-import Compressor from 'compressorjs';
 import { useNotification } from '../contexts/NotificationContext';
 import { NotificationType } from '../types/notification';
 import GallerySelect from './GallerySelect';
 import { LuImagePlus } from 'react-icons/lu';
+import { useImageModalStore } from '../stores/imageModalStore';
 
 interface Option {
     value: string;
@@ -27,6 +27,7 @@ interface Option {
 
 function ProductCreateAccordion() {
     const { summary } = useDataStore()
+    const { openImageModal } = useImageModalStore()
     const notification = useNotification()
     const inputRef = createRef<HTMLInputElement>()
     const [isSlugUnq, setIsSlugUnq] = useState(true)
@@ -140,6 +141,15 @@ function ProductCreateAccordion() {
             .finally(() => setCreatingProducts(false))
     };
 
+    const handleSelectImage = (img: ImagesResponse) => {
+        const exists = images.findIndex(c => c.id == img.id) != -1
+        if (exists) {
+            setImages([...images.filter(c => c.id != img.id)])
+        } else {
+            setImages([...images, img])
+        }
+    }
+
     return (
         <Accordion title="Create Products">
             <div className="grid grid-cols-2 border-b border-base-content/30">
@@ -220,6 +230,11 @@ function ProductCreateAccordion() {
                                             className="input w-full"
                                             placeholder="Black Set"
                                             ref={inputRef}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    handleVariantAdd();
+                                                }
+                                            }}
                                         />
                                         <button className="btn btn-square" onClick={handleVariantAdd}>
                                             <FaPlus className='size-5' />
@@ -310,6 +325,18 @@ function ProductCreateAccordion() {
                     <fieldset className="fieldset">
                         <legend className="fieldset-legend">Product Images</legend>
                         <div className="grid grid-cols-5 gap-5">
+                            {images.map((el, i) => (
+                                <div className="h-32 w-full bg-base-200 relative group" key={i}>
+                                    <img
+                                        src={getImageUrl({ id: el.id, filename: el.source, wxh: "0x500" })}
+                                        className='w-full h-full object-cover rounded'
+                                        onClick={() => openImageModal(getImageUrl({ id: el.id, filename: el.source, wxh: "0x1500" }))}
+                                    />
+                                    <button className="absolute top-0 right-0 bg-red-600 text-red-100 p-2 rounded -m-1 hidden group-hover:block cursor-pointer" onClick={() => handleSelectImage(el)}>
+                                        <FaTrash className='size-3' />
+                                    </button>
+                                </div>
+                            ))}
                             <button className="h-32 w-full border border-base-content/30 border-dashed rounded flex justify-center items-center bg-base-200 cursor-pointer hover:bg-base-300" onClick={() => setIsGalleryOpen(true)}>
                                 <LuImagePlus className='size-16' />
                             </button>
@@ -328,7 +355,12 @@ function ProductCreateAccordion() {
                     </div>
                 </div>
             )}
-            <GallerySelect selectedImages={images} setSelectedImages={setImages} isGalleryOpen={isGalleryOpen} setIsGalleryOpen={setIsGalleryOpen} />
+            <GallerySelect
+                selectedImages={images}
+                setSelectedImages={setImages}
+                isGalleryOpen={isGalleryOpen}
+                setIsGalleryOpen={setIsGalleryOpen}
+            />
         </Accordion>
     )
 }

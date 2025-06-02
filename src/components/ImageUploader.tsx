@@ -61,7 +61,7 @@ function ImageUploader({
                 <img
                     src={URL.createObjectURL(file)}
                     alt={file.name}
-                    className={classNames('h-32 w-full object-contain', { 'cursor-pointer': !(uploaded || disabled) })}
+                    className={classNames('h-32 w-full object-cover', { 'cursor-pointer': !(uploaded || disabled) })}
                     onClick={() => setIsOpen(uploaded || disabled ? false : true)}
                 />
                 {disabled && (

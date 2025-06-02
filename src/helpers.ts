@@ -12,11 +12,13 @@ export function generateSlug(text: string): string {
 
 export const getImageUrl = ({
   id,
-  filename
+  filename,
+  wxh
 }: {
   id: string,
-  filename: string
-}) => `${import.meta.env.VITE_API_URL}/api/files/images/${id}/${filename}`
+  filename: string,
+  wxh?: string
+}) => `${import.meta.env.VITE_API_URL}/api/files/images/${id}/${filename}${wxh ? `?thumb=${wxh}` : ""}`
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
