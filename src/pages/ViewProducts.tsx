@@ -20,7 +20,7 @@ function ViewProducts() {
   useEffect(() => {
     pb.collection(Collections.Products)
       .getList(pageNo, pageSize, {
-        expand: "categories, series, images, productVariants",
+        expand: "categories, series, images, productVariants_via_products.products",
         sort: "-created"
       })
       .then(res => setProductsData(res as unknown as ListResult<TexpandProductListResType>))
@@ -53,8 +53,8 @@ function ViewProducts() {
                     <th>Cost Price</th>
                     <th>Selling Price</th>
                     <th>Discount</th>
-                    <th>Category</th>
-                    <th>Series</th>
+                    <th className='text-center'>Category</th>
+                    <th className='text-center'>Series</th>
                     <th>Priority</th>
                     <th>In Stock</th>
                     <th>Created At</th>
@@ -72,15 +72,21 @@ function ViewProducts() {
                       <td>
                         <div className="bg-base-100 py-1 text-center border border-base-300 rounded-xl px-3">{e.displayType.length > 0 ? e.displayType : "N/A"}</div>
                       </td>
-                      <td></td>
+                      <td>
+                        <div className="flex flex-col gap-1">
+                          {(e.expand.productVariants_via_products || []).map((v) => (
+                            <div className='text-xs px-2 py-1 border border-base-content/10 text-center rounded-lg leading-3 w-fit mx-auto' key={v.id}>{v.title}</div>
+                          ))}
+                        </div>
+                      </td>
                       <td>TK {e.buyingPrice}</td>
                       <td>TK {e.sellingPrice}</td>
                       <td>TK {e.discount ?? 0}</td>
-                      <td>
-                        <div className="bg-base-100 py-1 text-center border border-base-300 rounded-xl px-3">{e.expand.categories.title}</div>
+                      <td className='min-w-48'>
+                        <div className="bg-base-content/10 py-1 text-center border border-base-300 rounded-xl px-3 w-fit mx-auto">{e.expand.categories.title}</div>
                       </td>
-                      <td>
-                        <div className="bg-base-100 py-1 text-center border border-base-300 rounded-xl px-3">{e.expand.series.title}</div>
+                      <td className='min-w-64'>
+                        <div className="bg-base-content/10 py-1 text-center border border-base-300 rounded-xl px-3 w-fit mx-auto">{e.expand.series.title}</div>
                       </td>
                       <td>{constants.PRIORITIES.find(c => c.value == e.priority)?.value}</td>
                       <td>
