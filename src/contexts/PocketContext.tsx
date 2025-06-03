@@ -50,6 +50,7 @@ export const PocketProvider = ({ children }: { children: ReactNode }) => {
             setAuthToken()
         } catch (error) {
             console.error("Admin login failed:", error);
+            throw error;
         }
     }, []);
 
