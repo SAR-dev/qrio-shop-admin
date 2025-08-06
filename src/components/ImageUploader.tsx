@@ -10,11 +10,13 @@ import Compressor from 'compressorjs';
 function ImageUploader({
     file,
     index,
-    setFile
+    setFile,
+    refetchImages
 }: {
     file: File,
     index: number,
-    setFile: (file: File, index: number) => void
+    setFile: (file: File, index: number) => void,
+    refetchImages?: () => void
 }) {
     const [isOpen, setIsOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
@@ -46,6 +48,7 @@ function ImageUploader({
                 }).finally(() => {
                     setIsOpen(false)
                     setIsLoading(false)
+                    if(refetchImages) refetchImages()
                 });
             },
             error(err) {

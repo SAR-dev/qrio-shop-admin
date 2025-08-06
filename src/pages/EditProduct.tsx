@@ -36,7 +36,6 @@ interface InputDataType {
     sellingPrice: string
     discount: string
     priority: string
-    displayType: string
     inStock: boolean
 }
 
@@ -71,7 +70,6 @@ function EditProduct() {
         sellingPrice: "",
         discount: "",
         priority: "",
-        displayType: "",
         inStock: true
     })
 
@@ -115,7 +113,6 @@ function EditProduct() {
                     sellingPrice: data.sellingPrice.toString(),
                     discount: data.discount.toString(),
                     priority: data.priority.toString(),
-                    displayType: data.displayType,
                     inStock: data.inStock
                 })
                 setDataLoaded(true)
@@ -157,7 +154,6 @@ function EditProduct() {
             summary,
             priority,
             inStock,
-            displayType
         } = inputData;
 
         const productData = {
@@ -170,7 +166,6 @@ function EditProduct() {
             summary,
             priority,
             inStock,
-            displayType,
             description: stateToHTML(descriptionState.getCurrentContent()),
             productVariants: [...variants],
             tags: selectedTags?.map(tag => tag.value) || [],
@@ -357,10 +352,6 @@ function EditProduct() {
                                                     <div className="swap-off flex items-center gap-2"><MdError className='size-5 text-error' /> Out of Stock</div>
                                                 </label>
                                                 <div className="flex gap-5">
-                                                    <select value={inputData.displayType} className="select w-42" onChange={e => setInputData({ ...inputData, displayType: e.target.value })}>
-                                                        <option disabled={true} value="">Display Type</option>
-                                                        {constants.PRODUCT_DISPLAYS.map((e, i) => <option value={e} key={i}>{e}</option>)}
-                                                    </select>
                                                     <select value={inputData.priority} className="select w-42" onChange={e => setInputData({ ...inputData, priority: e.target.value })}>
                                                         <option disabled={true} value="">Select Priority</option>
                                                         {constants.PRIORITIES.map((e, i) => <option value={e.value} key={i}>{e.label}</option>)}

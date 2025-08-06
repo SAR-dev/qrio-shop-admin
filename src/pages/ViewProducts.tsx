@@ -48,7 +48,6 @@ function ViewProducts() {
                     <th>ID</th>
                     <th>Title</th>
                     <th>Slug</th>
-                    <th>Display Type</th>
                     <th>Variants</th>
                     <th>Cost Price</th>
                     <th>Selling Price</th>
@@ -69,9 +68,6 @@ function ViewProducts() {
                       </th>
                       <td className='min-w-96'>{e.title}</td>
                       <td className='min-w-64'>{e.slug}</td>
-                      <td>
-                        <div className="bg-base-100 py-1 text-center border border-base-300 rounded-xl px-3">{e.displayType.length > 0 ? e.displayType : "N/A"}</div>
-                      </td>
                       <td>
                         <div className="flex flex-col gap-1">
                           {(e.expand.productVariants_via_products || []).map((v) => (
