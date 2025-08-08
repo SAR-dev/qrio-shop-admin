@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+.FIE_editor-content, .FIE_tabs {
+    height: 70vh !important;
+}
+
+.h-fill {
+    height: -webkit-fill-available;
+}
