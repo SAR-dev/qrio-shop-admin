@@ -16,9 +16,9 @@ export interface SummaryResType {
 
 export type TexpandProductListResType = ProductsResponse & {
     expand: {
-        categories: CategoriesResponse;
-        series: SeriesResponse;
-        images: ImagesResponse[];
-        productVariants_via_products: ProductVariantsResponse[]
+        categories?: CategoriesResponse;
+        series?: SeriesResponse;
+        images?: ImagesResponse[];
+        productVariants_via_products?: ProductVariantsResponse[]
     };
 };

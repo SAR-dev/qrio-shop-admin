@@ -6,6 +6,8 @@ import { Collections } from '../types/pocketbase'
 import classNames from 'classnames'
 import { TbAlertSquareRoundedFilled } from "react-icons/tb";
 import Compressor from 'compressorjs';
+import { useNotification } from '../contexts/NotificationContext'
+import { NotificationType } from '../types/notification'
 
 function ImageUploader({
     file,
@@ -20,6 +22,7 @@ function ImageUploader({
 }) {
     const [isOpen, setIsOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const notification = useNotification()
 
     const [uploaded, setUploaded] = useState(false)
     const [disabled, setDisabled] = useState(false)
@@ -43,9 +46,18 @@ function ImageUploader({
                 const formData = new FormData();
                 formData.append("title", file.name);
                 formData.append("source", result, file.name);
-                pb.collection(Collections.Images).create(formData).then(() => {
+                pb.collection(Collections.Images).create(formData)
+                .then(() => {
                     setUploaded(true)
-                }).finally(() => {
+                })
+                .catch(err => {
+                    notification.add({
+                        title: "Error occured !",
+                        message: Object.keys(err.response.data).map(c => err.response.data[c].message).join(),
+                        status: NotificationType.ERROR
+                    })
+                })
+                .finally(() => {
                     setIsOpen(false)
                     setIsLoading(false)
                     if(refetchImages) refetchImages()

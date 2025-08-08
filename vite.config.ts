@@ -12,7 +12,7 @@ export default defineConfig({
   ],
   envDir: "./env",
   server: {
-    port: 5173,
+    port: 5151,
   },
   resolve: {
     alias: {

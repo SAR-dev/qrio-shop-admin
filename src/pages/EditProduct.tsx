@@ -95,9 +95,9 @@ function EditProduct() {
                 const data = res as unknown as TexpandProductListResType;
                 const tags = data.tags as unknown as string[]
                 const blocksFromHTML = convertFromHTML(data.description)
-                setSelectedCategory({ value: data.expand.categories.id, label: data.expand.categories.title })
-                setSelectedSeries({ value: data.expand.series.id, label: data.expand.series.title })
-                setSelectedTags(tags.map(c => ({ value: c, label: c })))
+                if(data.expand.categories) setSelectedCategory({ value: data.expand.categories.id, label: data.expand.categories.title })
+                if(data.expand.series) setSelectedSeries({ value: data.expand.series.id, label: data.expand.series.title })
+                if(!!tags) setSelectedTags(tags.map(c => ({ value: c, label: c })))
                 setVariants((data.expand.productVariants_via_products ?? []).map(c => c.title))
                 setImages(data.expand.images ?? [])
                 setDescriptionState(
