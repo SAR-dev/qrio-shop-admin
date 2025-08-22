@@ -22,3 +22,8 @@ export type TexpandProductListResType = ProductsResponse & {
         productVariants_via_products?: ProductVariantsResponse[]
     };
 };
+
+export interface Option {
+    value: string;
+    label: string;
+}

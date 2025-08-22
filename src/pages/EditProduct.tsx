@@ -21,12 +21,7 @@ import RichTextEditor from "../components/RichTextEditor";
 import Accordion from "../components/Accordion";
 import GallerySelect from "../components/GallerySelect";
 import { useParams } from "react-router";
-import { TexpandProductListResType } from "../types/response";
-
-interface Option {
-    value: string;
-    label: string;
-}
+import { Option, TexpandProductListResType } from "../types/response";
 
 interface InputDataType {
     title: string

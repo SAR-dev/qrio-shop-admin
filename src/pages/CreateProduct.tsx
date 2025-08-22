@@ -20,11 +20,7 @@ import { useImageModalStore } from '../stores/imageModalStore';
 import RichTextEditor from "../components/RichTextEditor";
 import Accordion from "../components/Accordion";
 import GallerySelect from "../components/GallerySelect";
-
-interface Option {
-    value: string;
-    label: string;
-}
+import { Option } from "../types/response";
 
 interface InputDataType {
     title: string
@@ -38,7 +34,7 @@ interface InputDataType {
 }
 
 function CreateProduct() {
-    const { summary } = useDataStore()
+    const { summary } = useDataStore() 
     const { openImageModal } = useImageModalStore()
     const notification = useNotification()
     const inputRef = createRef<HTMLInputElement>()

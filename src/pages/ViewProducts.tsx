@@ -4,39 +4,72 @@ import { useEffect, useMemo, useState } from 'react';
 import { pb } from '../contexts/PocketContext';
 import { Collections } from '../types/pocketbase';
 import { constants } from '../constants';
-import { TexpandProductListResType } from '../types/response';
+import { Option, TexpandProductListResType } from '../types/response';
 import { ListResult } from 'pocketbase';
 import { formatTimestamp, getImageUrl } from '../helpers';
 import Accordion from '../components/Accordion';
+import { useDataStore } from '../stores/dataStore';
+import Select, { MultiValue } from 'react-select';
 
 const pageSize = 20;
+const escapePB = (str: string) => str.replace(/"/g, '\\"');
 
 function ViewProducts() {
-    const [searchParams, setSearchParams] = useSearchParams();
+    const { summary } = useDataStore();
     const [productsData, setProductsData] = useState<ListResult<TexpandProductListResType>>();
 
-    const pageNo = useMemo(
-        () => (searchParams.get(constants.SEARCH_PARAMS.PAGIE_NO) ? Number(searchParams.get(constants.SEARCH_PARAMS.PAGIE_NO)) : 1),
-        [searchParams]
+    const [pageNo, setPageNo] = useState(1);
+    const [selectedCategory, setSelectedCategory] = useState<Option | null>(null);
+    const [selectedSeries, setSelectedSeries] = useState<Option | null>(null);
+    const [searchText, setSearchText] = useState('');
+
+    const categoryList: Array<Option> = useMemo(
+        () => [{ value: '', label: 'None' }, ...summary.categoryList.map(c => ({ value: c.id, label: c.title }))],
+        [summary]
+    );
+    const seriesList: Array<Option> = useMemo(
+        () => [{ value: '', label: 'None' }, ...summary.seriesList.map(c => ({ value: c.id, label: c.title }))],
+        [summary]
     );
 
     useEffect(() => {
+        const filters: string[] = [];
+    
+        if (selectedCategory?.value) {
+            filters.push(`categories = "${escapePB(selectedCategory.value)}"`);
+        }
+    
+        if (selectedSeries?.value) {
+            filters.push(`series = "${escapePB(selectedSeries.value)}"`);
+        }
+    
+        if (searchText.length >= 3) {
+            filters.push(`title ~ "%${escapePB(searchText)}%"`);
+        }
+    
+        const filter = filters.length ? filters.join(' && ') : '';
+    
         pb.collection(Collections.Products)
             .getList(pageNo, pageSize, {
-                expand: 'categories, series, images, productVariants_via_products.products',
+                expand: 'categories,series,images,productVariants_via_products.products',
                 sort: '-created',
+                filter,
             })
-            .then(res => setProductsData(res as unknown as ListResult<TexpandProductListResType>));
-    }, [searchParams]);
+            .then((res) => {
+                setProductsData(res as unknown as ListResult<TexpandProductListResType>);
+            })
+            .catch((err) => {
+                console.error('Failed to fetch products:', err);
+            });
+    
+    }, [pageNo, pageSize, selectedCategory, selectedSeries, searchText]);
 
     const goNext = () => {
-        searchParams.set(constants.SEARCH_PARAMS.PAGIE_NO, (pageNo + 1).toString());
-        setSearchParams(searchParams);
+        setPageNo(pageNo + 1);
     };
 
     const goPrev = () => {
-        searchParams.set(constants.SEARCH_PARAMS.PAGIE_NO, (pageNo - 1).toString());
-        setSearchParams(searchParams);
+        setPageNo(pageNo - 1);
     };
 
     return (
@@ -44,7 +77,43 @@ function ViewProducts() {
             <div className='container mx-auto p-5'>
                 <div className='bg-base-100 border border-base-content/30'>
                     <Accordion title='Manage Products'>
-                        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 p-5 bg-base-100'>
+                        <div className='grid grid-cols-3 gap-5 p-5 bg-base-100'>
+                            <div className='col-span-3'>
+                                <div className='grid grid-cols-3 gap-5 w-full'>
+                                    <fieldset className='fieldset'>
+                                        <legend className='fieldset-legend'>Select category</legend>
+                                        <Select<Option>
+                                            className='basic-single'
+                                            classNamePrefix='select'
+                                            value={selectedCategory}
+                                            onChange={option => setSelectedCategory(option)}
+                                            isSearchable
+                                            options={categoryList}
+                                        />
+                                    </fieldset>
+                                    <fieldset className='fieldset'>
+                                        <legend className='fieldset-legend'>Select series</legend>
+                                        <Select<Option>
+                                            className='basic-single'
+                                            classNamePrefix='select'
+                                            value={selectedSeries}
+                                            onChange={option => setSelectedSeries(option)}
+                                            isSearchable
+                                            options={seriesList}
+                                        />
+                                    </fieldset>
+                                    <fieldset className='fieldset'>
+                                        <legend className='fieldset-legend'>Search title (Min 3 charcters)</legend>
+                                        <input
+                                            type='text'
+                                            className='input w-full'
+                                            placeholder='Search...'
+                                            value={searchText}
+                                            onChange={e => setSearchText(e.target.value)}
+                                        />
+                                    </fieldset>
+                                </div>
+                            </div>
                             {productsData?.items.map((e, i) => (
                                 <div key={i} className='border border-base-content/30 rounded-lg p-4 flex flex-col justify-between'>
                                     <div className='mb-3'>
