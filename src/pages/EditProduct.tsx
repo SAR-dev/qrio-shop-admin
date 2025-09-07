@@ -61,10 +61,10 @@ function EditProduct() {
         title: "",
         slug: "",
         summary: "",
-        buyingPrice: "",
-        sellingPrice: "",
-        discount: "",
-        priority: "",
+        buyingPrice: "0",
+        sellingPrice: "0",
+        discount: "0",
+        priority: "1",
         inStock: true
     })
 
