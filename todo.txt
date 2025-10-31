@@ -1,0 +1,3 @@
+1. add product delete button
+2. add product filter by url params
+3. after product is edited bring back to filter page

@@ -12,7 +12,11 @@ export const constants = {
         { value: 2, label: "2 – Very Low" },
         { value: 1, label: "1 – Lowest Priority" },
     ],
-    SEARCH_PARAMS: {
-        PAGIE_NO: "pageNo"
+    FILTERS: {
+        SERIES_ID: "seriesId",
+        CATEGORY_ID: "categoryId",
+        PAGE_NO: "pageNo",
+        SEARCH: "search",
+        PAGE_SIZE: "pageSize"
     }
 }

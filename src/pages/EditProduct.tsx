@@ -92,7 +92,7 @@ function EditProduct() {
                 const blocksFromHTML = convertFromHTML(data.description)
                 if(data.expand.categories) setSelectedCategory({ value: data.expand.categories.id, label: data.expand.categories.title })
                 if(data.expand.series) setSelectedSeries({ value: data.expand.series.id, label: data.expand.series.title })
-                if(!!tags) setSelectedTags(tags.map(c => ({ value: c, label: c })))
+                if (tags) setSelectedTags(tags.map(c => ({ value: c, label: c })))
                 setVariants((data.expand.productVariants_via_products ?? []).map(c => c.title))
                 setImages(data.expand.images ?? [])
                 setDescriptionState(
@@ -397,7 +397,7 @@ function EditProduct() {
                                 </fieldset>
                             </div>
                         </div>
-                        <div className="p-5 flex justify-center bg-info/30">
+                        <div className="p-5 flex justify-center gap-5 bg-info/30">
                             <button className="btn btn-info w-64" onClick={handleSubmit}>Submit</button>
                         </div>
                         {creatingProducts && (

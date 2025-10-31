@@ -1,75 +1,83 @@
 import { Link, useSearchParams } from 'react-router';
 import AuthLayout from '../layouts/AuthLayout';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { pb } from '../contexts/PocketContext';
 import { Collections } from '../types/pocketbase';
 import { constants } from '../constants';
-import { Option, TexpandProductListResType } from '../types/response';
+import { TexpandProductListResType } from '../types/response';
 import { ListResult } from 'pocketbase';
 import { formatTimestamp, getImageUrl } from '../helpers';
 import Accordion from '../components/Accordion';
 import { useDataStore } from '../stores/dataStore';
-import Select, { MultiValue } from 'react-select';
 
 const pageSize = 20;
 const escapePB = (str: string) => str.replace(/"/g, '\\"');
 
 function ViewProducts() {
+    const [searchParams, setSearchParams] = useSearchParams();
     const { summary } = useDataStore();
+    const [isLoading, setIsLoading] = useState(false);
     const [productsData, setProductsData] = useState<ListResult<TexpandProductListResType>>();
-
-    const [pageNo, setPageNo] = useState(1);
-    const [selectedCategory, setSelectedCategory] = useState<Option | null>(null);
-    const [selectedSeries, setSelectedSeries] = useState<Option | null>(null);
-    const [searchText, setSearchText] = useState('');
-
-    const categoryList: Array<Option> = useMemo(
-        () => [{ value: '', label: 'None' }, ...summary.categoryList.map(c => ({ value: c.id, label: c.title }))],
-        [summary]
-    );
-    const seriesList: Array<Option> = useMemo(
-        () => [{ value: '', label: 'None' }, ...summary.seriesList.map(c => ({ value: c.id, label: c.title }))],
-        [summary]
-    );
+    const [searchText, setSearchText] = useState(searchParams.get(constants.FILTERS.SEARCH) ?? "");
 
     useEffect(() => {
+        setIsLoading(true);
         const filters: string[] = [];
-    
-        if (selectedCategory?.value) {
-            filters.push(`categories = "${escapePB(selectedCategory.value)}"`);
+
+        const seriesId = summary?.seriesList.find(e => e.id == searchParams.get(constants.FILTERS.SERIES_ID))?.id ?? ""
+        const categoryId = summary?.categoryList.find(e => e.id == searchParams.get(constants.FILTERS.CATEGORY_ID))?.id ?? ""
+        const pageNo = Number(searchParams.get(constants.FILTERS.PAGE_NO) ?? 1);
+        const search = searchParams.get(constants.FILTERS.SEARCH) ?? ""
+
+        if (categoryId.length > 0) {
+            filters.push(`categories = "${escapePB(categoryId)}"`);
         }
-    
-        if (selectedSeries?.value) {
-            filters.push(`series = "${escapePB(selectedSeries.value)}"`);
+
+        if (seriesId.length > 0) {
+            filters.push(`series = "${escapePB(seriesId)}"`);
         }
-    
-        if (searchText.length >= 3) {
-            filters.push(`title ~ "%${escapePB(searchText)}%"`);
+
+        if (search.length >= 3) {
+            filters.push(`title ~ "%${escapePB(search)}%"`);
         }
-    
+
         const filter = filters.length ? filters.join(' && ') : '';
-    
+
         pb.collection(Collections.Products)
             .getList(pageNo, pageSize, {
                 expand: 'categories,series,images,productVariants_via_products.products',
                 sort: '-created',
                 filter,
             })
-            .then((res) => {
+            .then(res => {
                 setProductsData(res as unknown as ListResult<TexpandProductListResType>);
             })
-            .catch((err) => {
+            .catch(err => {
                 console.error('Failed to fetch products:', err);
+            })
+            .finally(() => {
+                setIsLoading(false);
             });
-    
-    }, [pageNo, pageSize, selectedCategory, selectedSeries, searchText]);
+    }, [summary, searchParams]);
 
     const goNext = () => {
-        setPageNo(pageNo + 1);
+        setSearchParams({
+            seriesId: searchParams.get(constants.FILTERS.SERIES_ID) ?? '',
+            categoryId: searchParams.get(constants.FILTERS.CATEGORY_ID) ?? '',
+            search: searchParams.get(constants.FILTERS.SEARCH) ?? '',
+            pageSize: pageSize.toString(),
+            pageNo: (Number(searchParams.get(constants.FILTERS.PAGE_NO) ?? 1) + 1).toString(),
+        });
     };
 
     const goPrev = () => {
-        setPageNo(pageNo - 1);
+        setSearchParams({
+            seriesId: searchParams.get(constants.FILTERS.SERIES_ID) ?? '',
+            categoryId: searchParams.get(constants.FILTERS.CATEGORY_ID) ?? '',
+            search: searchParams.get(constants.FILTERS.SEARCH) ?? '',
+            pageSize: pageSize.toString(),
+            pageNo: (Number(searchParams.get(constants.FILTERS.PAGE_NO) ?? 2) - 1).toString(),
+        });
     };
 
     return (
@@ -80,38 +88,80 @@ function ViewProducts() {
                         <div className='grid grid-cols-3 gap-5 p-5 bg-base-100'>
                             <div className='col-span-3'>
                                 <div className='grid grid-cols-3 gap-5 w-full'>
-                                    <fieldset className='fieldset'>
-                                        <legend className='fieldset-legend'>Select category</legend>
-                                        <Select<Option>
-                                            className='basic-single'
-                                            classNamePrefix='select'
-                                            value={selectedCategory}
-                                            onChange={option => setSelectedCategory(option)}
-                                            isSearchable
-                                            options={categoryList}
-                                        />
-                                    </fieldset>
-                                    <fieldset className='fieldset'>
-                                        <legend className='fieldset-legend'>Select series</legend>
-                                        <Select<Option>
-                                            className='basic-single'
-                                            classNamePrefix='select'
-                                            value={selectedSeries}
-                                            onChange={option => setSelectedSeries(option)}
-                                            isSearchable
-                                            options={seriesList}
-                                        />
-                                    </fieldset>
-                                    <fieldset className='fieldset'>
-                                        <legend className='fieldset-legend'>Search title (Min 3 charcters)</legend>
+                                    <label className='form-control w-full max-w-xs'>
+                                        <div className='label'>
+                                            <span className='label-text'>Category</span>
+                                        </div>
+                                        <select
+                                            disabled={isLoading}
+                                            value={searchParams.get(constants.FILTERS.CATEGORY_ID) ?? ''}
+                                            className='select select-bordered'
+                                            onChange={e =>
+                                                setSearchParams({
+                                                    seriesId: searchParams.get(constants.FILTERS.SERIES_ID) ?? '',
+                                                    categoryId: e.target.value,
+                                                    search: searchParams.get(constants.FILTERS.SEARCH) ?? '',
+                                                })
+                                            }
+                                        >
+                                            <option selected value=''>
+                                                All
+                                            </option>
+                                            {summary.categoryList.map((e, i) => (
+                                                <option value={e.id} key={i}>
+                                                    {e.title}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </label>
+                                    <label className='form-control w-full max-w-xs'>
+                                        <div className='label'>
+                                            <span className='label-text'>Series</span>
+                                        </div>
+                                        <select
+                                            disabled={isLoading}
+                                            value={searchParams.get(constants.FILTERS.SERIES_ID) ?? ''}
+                                            onChange={e =>
+                                                setSearchParams({
+                                                    seriesId: e.target.value,
+                                                    categoryId: searchParams.get(constants.FILTERS.CATEGORY_ID) ?? '',
+                                                    search: searchParams.get(constants.FILTERS.SEARCH) ?? '',
+                                                })
+                                            }
+                                            className='select select-bordered'
+                                        >
+                                            <option selected value=''>
+                                                All
+                                            </option>
+                                            {summary.seriesList.map((e, i) => (
+                                                <option value={e.id} key={i}>
+                                                    {e.title}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </label>
+                                    <label className='form-control w-full col-span-2 md:col-span-1'>
+                                        <div className='label'>
+                                            <span className='label-text'>Search Text</span>
+                                            <span className='label-text-alt'>Press 'Enter' to search</span>
+                                        </div>
                                         <input
                                             type='text'
-                                            className='input w-full'
-                                            placeholder='Search...'
+                                            disabled={isLoading}
                                             value={searchText}
                                             onChange={e => setSearchText(e.target.value)}
+                                            onKeyDown={e => {
+                                                if (e.key === 'Enter') {
+                                                    setSearchParams({
+                                                        seriesId: searchParams.get(constants.FILTERS.SERIES_ID) ?? '',
+                                                        categoryId: searchParams.get(constants.FILTERS.CATEGORY_ID) ?? '',
+                                                        search: searchText,
+                                                    });
+                                                }
+                                            }}
+                                            className='input input-bordered'
                                         />
-                                    </fieldset>
+                                    </label>
                                 </div>
                             </div>
                             {productsData?.items.map((e, i) => (
@@ -185,11 +235,11 @@ function ViewProducts() {
                             <div className='flex items-center'>Total found {productsData?.totalItems} items</div>
                             <div className='justify-center flex items-center'>Showing {productsData?.items.length} items</div>
                             <div className='join ml-auto'>
-                                <button className='join-item btn' disabled={pageNo == 1} onClick={goPrev}>
+                                <button className='join-item btn' disabled={Number(searchParams.get(constants.FILTERS.PAGE_NO)) == 1} onClick={goPrev}>
                                     «
                                 </button>
-                                <button className='join-item btn'>Page {pageNo}</button>
-                                <button className='join-item btn' disabled={pageNo == productsData?.totalPages} onClick={goNext}>
+                                <button className='join-item btn'>Page {Number(searchParams.get(constants.FILTERS.PAGE_NO))}</button>
+                                <button className='join-item btn' disabled={Number(searchParams.get(constants.FILTERS.PAGE_NO)) == productsData?.totalPages} onClick={goNext}>
                                     »
                                 </button>
                             </div>
